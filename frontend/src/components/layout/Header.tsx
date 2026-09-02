@@ -8,7 +8,7 @@ export default function Header(){
   return (<header className="sticky top-0 z-50">
     <div className="bg-navy text-white">
       <div className="container-bb flex items-center gap-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg"><span className="bg-gold text-navy px-2 py-1 rounded">BB</span> BUDGET <span className="text-gold">BAZAR</span></Link>
+        <Link href="/" className="flex items-center gap-2 font-bold text-lg"><img src="/logo.png" alt="Budget Bazar Service" className="w-10 h-10 rounded-full border-2 border-gold bg-white object-cover"/> BUDGET <span className="text-gold">BAZAR</span></Link>
         <div className="flex-1 max-w-xl mx-4 hidden md:flex">
           <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search for gadgets, accessories..." className="flex-1 px-4 py-2 rounded-l-md text-slate-900 outline-none" />
           <button className="bg-gold text-navy px-6 rounded-r-md font-semibold">Search</button>
