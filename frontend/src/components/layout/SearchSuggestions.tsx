@@ -23,8 +23,8 @@ export default function SearchSuggestions({q, onClose}:{q:string; onClose:()=>vo
       </Link>)}
     </div>) : q ? (<p className="p-4 text-sm text-gray-500 text-center">No results for &quot;{q}&quot;</p>) : null}
     {!q && <div className="p-4 grid grid-cols-2 gap-4">
-      <div><p className="text-xs font-semibold text-gray-400 mb-2">RECENT SEARCHES</p>{recent.map(r=><button key={r} onClick={onClose} className="block w-full text-left text-sm py-1.5 hover:text-gold">{r}</button>)}</div>
-      <div><p className="text-xs font-semibold text-gray-400 mb-2">POPULAR SEARCHES</p>{popular.map(r=><button key={r} onClick={onClose} className="block w-full text-left text-sm py-1.5 hover:text-gold">{r}</button>)}</div>
+      <div><p className="text-xs font-semibold text-gray-400 mb-2">RECENT SEARCHES</p>{recent.map(r=><button key={r} onClick={onClose} className="block w-full text-left text-sm py-1.5 text-slate-900 hover:text-gold">{r}</button>)}</div>
+      <div><p className="text-xs font-semibold text-gray-400 mb-2">POPULAR SEARCHES</p>{popular.map(r=><button key={r} onClick={onClose} className="block w-full text-left text-sm py-1.5 text-slate-900 hover:text-gold">{r}</button>)}</div>
     </div>}
   </div>);
 }
