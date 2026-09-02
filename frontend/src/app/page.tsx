@@ -17,15 +17,22 @@ export default function Home(){
       </div>
     </section>
     <section className="container-bb grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-      {['Fast Delivery','Best Quality','Best Price','Support 24/7'].map(t=><div key={t} className="border rounded p-4 bg-white text-sm font-medium text-center">{t}</div>)}
+      {[
+        {t:'Fast Delivery',d:'Within 24-48 Hours',i:'🚚'},
+        {t:'Best Quality',d:'100% Original Products',i:'✅'},
+        {t:'Best Price',d:'Unbeatable Guarantee',i:'💰'},
+        {t:'Support 24/7',d:"We're Here to Help",i:'💬'},
+      ].map(s=><div key={s.t} className="border rounded-xl p-4 bg-white flex gap-3 items-center hover:shadow-md transition card-hover"><span className="text-2xl w-10 h-10 flex items-center justify-center bg-gold/15 rounded-lg">{s.i}</span><div><p className="text-sm font-semibold">{s.t}</p><p className="text-xs text-gray-500">{s.d}</p></div></div>)}
     </section>
     <section className="container-bb mt-8">
       <h2 className="font-bold text-lg mb-4">Shop by Categories</h2>
-      <div className="grid grid-cols-3 md:grid-cols-7 gap-4">
-        {categories.length? categories.map((c:any)=><a key={c.id} href={`/shop?category=${c.slug}`} className="border rounded p-3 text-center text-sm bg-white hover:shadow">
-          {c.image_url ? <img src={c.image_url} className="w-12 h-12 mx-auto object-cover rounded" alt={c.name}/> : <div className="w-12 h-12 mx-auto bg-gray-100 rounded flex items-center justify-center text-xs">📦</div>}
-          <p className="mt-2 text-xs">{c.name}</p>
-        </a>) : ['Mobile','Audio','Watch','Gaming','Electronics','Computer','Offers'].map(c=><div key={c} className="border rounded p-4 text-center text-sm bg-white">{c}</div>)}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+        {categories.length? categories.map((c:any)=><a key={c.id} href={`/shop?category=${c.slug}`} className="border rounded-xl p-4 text-center bg-white card-hover group">
+          {c.image_url ? <img src={c.image_url} className="w-14 h-14 mx-auto object-cover rounded-xl group-hover:scale-110 transition"/> : <div className="w-14 h-14 mx-auto bg-gradient-to-br from-gold/20 to-navy/10 rounded-xl flex items-center justify-center text-lg">{c.name[0]}</div>}
+          <p className="mt-3 text-xs font-medium">{c.name}</p>
+        </a>) : [
+          {n:'Mobile & Accessories',e:'📱'}, {n:'Audio',e:'🎧'}, {n:'Smart Watch',e:'⌚'}, {n:'Gaming',e:'🎮'}, {n:'Electronics',e:'💻'}, {n:'Computer',e:'🖥️'}
+        ].map(c=><a key={c.n} href="/shop" className="border rounded-xl p-4 text-center bg-white card-hover"><div className="w-14 h-14 mx-auto bg-gradient-to-br from-gold/20 to-navy/10 rounded-xl flex items-center justify-center text-xl">{c.e}</div><p className="mt-3 text-xs font-medium">{c.n}</p></a>)}
       </div>
     </section>
     <section className="container-bb mt-8">
