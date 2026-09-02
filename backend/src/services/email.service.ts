@@ -1,13 +1,26 @@
 import nodemailer from 'nodemailer';
+// Resend HTTP API (preferred on Railway - SMTP blocked)
+const RESEND_KEY = process.env.RESEND_API_KEY || '';
+async function sendViaResend(to:string, subject:string, html:string){
+  const res = await fetch('https://api.resend.com/emails', {
+    method:'POST',
+    headers:{ 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type':'application/json' },
+    body: JSON.stringify({ from: 'Budget Bazar Service <onboarding@resend.dev>', to, subject, html })
+  });
+  if(!res.ok){ const t=await res.text(); throw new Error(`Resend ${res.status}: ${t}`); }
+  return res.json();
+}
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: Number(process.env.SMTP_PORT || 465),
   secure: true,
   auth: { user: process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com', pass: (process.env.SMTP_PASS || 'zhmf ptla fpmf ndty').replace(/\s/g,'') },
   tls: { rejectUnauthorized: false },
-  connectionTimeout: 10000,
+  connectionTimeout: 5000,
 });
 export async function sendMail(to:string, subject:string, html:string){
+  // try Resend first (HTTP, works on Railway)
+  try{ await sendViaResend(to, subject, html); return; }catch(e){ console.warn('Resend fail, fallback SMTP', (e as any)?.message); }
   const from = process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com';
   await transporter.sendMail({ from: `Budget Bazar Service <${from}>`, to, subject, html });
 }
