@@ -54,7 +54,7 @@ export default function AdminProducts(){
       setForm({name:'',slug:'',brand:'',category_id:'',regular_price:'',sale_price:'',stock_quantity:'10',sku:'',short_description:''});
       setFiles(null); (document.getElementById('fileInput') as any).value='';
       load();
-    }catch(err:any){ setMsg('❌ '+(err.response?.data?.error || err.message)); }
+    }catch(err:any){ const e=err.response?.data?.error; const msgText = typeof e==='string'? e : e? JSON.stringify(e, null, 2) : err.message; setMsg('❌ '+msgText); }
     finally{ setLoading(false); }
   };
 
