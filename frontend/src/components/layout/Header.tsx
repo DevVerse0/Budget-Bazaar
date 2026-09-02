@@ -14,7 +14,7 @@ export default function Header(){
       <div className="container-bb flex items-center gap-4 py-3">
         <div className="flex items-center gap-2">
           <MobileMenu/>
-          <Link href="/" className="flex items-center gap-2 font-bold text-base sm:text-lg whitespace-nowrap"><img src="/logo.png" alt="Budget Bazar Service" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-gold bg-white object-cover"/> BUDGET <span className="text-gold">BAZAR</span></Link>
+          <Link href="/" className="flex items-center gap-2"><img src="/logo.png" alt="Budget Bazar Service" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-gold bg-white object-cover"/><span className="leading-none"><span className="font-bold text-sm sm:text-lg whitespace-nowrap">BUDGET <span className="text-gold">BAZAR</span></span><span className="block text-[10px] sm:text-xs tracking-[0.2em] text-gold -mt-0.5">SERVICE</span></span></Link>
         </div>
         <div className="hidden md:flex flex-1 justify-center"><SearchBar/></div>
         <div className="flex items-center gap-5 ml-auto">
