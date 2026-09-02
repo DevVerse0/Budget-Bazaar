@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { api } from '@/services/api';
-export default function Verify(){
+function VerifyInner(){
   const sp = useSearchParams(); const emailParam = sp.get('email') || '';
   const [email,setEmail]=useState(emailParam); const [code,setCode]=useState(''); const [msg,setMsg]=useState(''); const [err,setErr]=useState(''); const router=useRouter();
   const submit=async(e:any)=>{
@@ -25,3 +25,4 @@ export default function Verify(){
     </div>
   </div>);
 }
+export default function Verify(){ return (<Suspense fallback={<div className="min-h-[80vh] flex items-center justify-center">Loading...</div>}><VerifyInner/></Suspense>); }
