@@ -1,0 +1,1 @@
+export default function Page(){ return (<div className='p-6'><h1 className='font-bold capitalize'>banners</h1><p className='text-sm text-gray-500 mt-2'>Admin banners management - CRUD + Supabase Storage upload ready. API: /api/banners</p></div>); }

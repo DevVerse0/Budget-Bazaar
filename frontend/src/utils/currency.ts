@@ -1,0 +1,1 @@
+export const formatBDT = (n:number)=> `৳${n.toLocaleString('en-BD')}`;

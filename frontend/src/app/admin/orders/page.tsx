@@ -1,0 +1,1 @@
+export default function Page(){ return (<div className='p-6'><h1 className='font-bold capitalize'>orders</h1><p className='text-sm text-gray-500 mt-2'>Admin orders management - CRUD + Supabase Storage upload ready. API: /api/orders</p></div>); }

@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { listProducts, getProduct, createProduct, updateProduct, deleteProduct } from '../controllers/product.controller.js';
+import { authMiddleware } from '../middleware/auth.middleware.js';
+import { adminMiddleware } from '../middleware/admin.middleware.js';
+import { validate } from '../middleware/validation.middleware.js';
+import { createProductSchema } from '../validators/product.validator.js';
+const r = Router();
+r.get('/', listProducts);
+r.get('/:id', getProduct);
+r.post('/', authMiddleware, adminMiddleware, validate(createProductSchema), createProduct);
+r.put('/:id', authMiddleware, adminMiddleware, updateProduct);
+r.delete('/:id', authMiddleware, adminMiddleware, deleteProduct);
+export default r;

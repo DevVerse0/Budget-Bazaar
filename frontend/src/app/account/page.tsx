@@ -1,0 +1,1 @@
+export default function Account(){ return (<div className='container-bb py-6'><h1 className='font-bold'>My Account</h1><p className='text-sm text-gray-500'>Profile, Orders, Wishlist, Addresses</p></div>); }
