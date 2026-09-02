@@ -1,7 +1,11 @@
 import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com', pass: process.env.SMTP_PASS || 'zhmf ptla fpmf ndty' },
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: Number(process.env.SMTP_PORT || 465),
+  secure: true,
+  auth: { user: process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com', pass: (process.env.SMTP_PASS || 'zhmf ptla fpmf ndty').replace(/\s/g,'') },
+  tls: { rejectUnauthorized: false },
+  connectionTimeout: 10000,
 });
 export async function sendMail(to:string, subject:string, html:string){
   const from = process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com';

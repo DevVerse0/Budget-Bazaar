@@ -12,8 +12,8 @@ export async function requestOtp(req:Request,res:Response){
   await supabaseAdmin.from('otp_codes').delete().eq('email', email).eq('type', type);
   const { error } = await supabaseAdmin.from('otp_codes').insert({ email, code, type, expires_at: expires });
   if(error) return res.status(400).json({ error: error.message });
-  try{ await sendOtpCode(email, code); }catch(e){ console.error('mail fail', e); }
-  res.json({ success:true, message:'Code sent via Budget Bazar Service', preview: code }); // preview for dev, remove prod
+  try{ await sendOtpCode(email, code); }catch(e:any){ console.error('mail fail', e?.message||e); }
+  res.json({ success:true, message:'Code sent via Budget Bazar Service', preview: code });
 }
 export async function verifyOtp(req:Request,res:Response){
   const { email, code, type='signup' } = req.body;
