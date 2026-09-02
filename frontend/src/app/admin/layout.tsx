@@ -6,13 +6,13 @@ import { supabase } from '@/lib/supabase';
 export default function AdminLayout({children}:{children:React.ReactNode}){
   const router = useRouter(); const pathname = usePathname();
   const [loading,setLoading]=useState(true); const [isAdmin,setIsAdmin]=useState(false);
-  // allow /admin/login without check
-  if(pathname==='/admin/login') return (<div>{children}</div>);
+  const isLogin = pathname==='/admin/login';
   useEffect(()=>{
+    if(isLogin){ setLoading(false); return; }
     (async()=>{
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      if(!token){ router.replace('/admin/login'); return; }
+      if(!token){ router.replace('/admin/login'); setLoading(false); return; }
       try{
         const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, { headers:{ Authorization:`Bearer ${token}` }});
         const j = await r.json();
@@ -20,7 +20,8 @@ export default function AdminLayout({children}:{children:React.ReactNode}){
       }catch{ router.replace('/admin/login'); }
       finally{ setLoading(false); }
     })();
-  },[router, pathname]);
+  },[router, pathname, isLogin]);
+  if(isLogin) return (<div>{children}</div>);
   if(loading) return (<div className="min-h-screen flex items-center justify-center">Checking admin...</div>);
   if(!isAdmin) return null;
   return (<div className="flex min-h-screen">
