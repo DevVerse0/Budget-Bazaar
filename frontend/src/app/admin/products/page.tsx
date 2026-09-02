@@ -32,9 +32,9 @@ export default function AdminProducts(){
     const slug = form.slug || form.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
     const payload={
       name: form.name, slug,
-      brand: form.brand || null, category_id: form.category_id || null,
-      regular_price: Number(form.regular_price), sale_price: form.sale_price? Number(form.sale_price): null,
-      stock_quantity: Number(form.stock_quantity), sku: form.sku || null,
+      brand: form.brand || undefined, category_id: form.category_id || undefined,
+      regular_price: Number(form.regular_price), sale_price: form.sale_price? Number(form.sale_price): undefined,
+      stock_quantity: Number(form.stock_quantity), sku: form.sku || undefined,
       status:'active', short_description: form.short_description || form.name, description: form.short_description || form.name
     };
     try{
