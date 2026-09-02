@@ -33,3 +33,6 @@ export async function sendOtpCode(to:string, code:string){
   const logo = 'https://budgetbazar.netlify.app/logo.png';
   await sendMail(to, `Budget Bazar Service - Your Code ${code}`, otpEmailHtml(code, logo));
 }
+export async function sendResetLink(to:string, link:string){
+  await sendMail(to, 'Budget Bazar Service - Reset Password', `<div style="font-family:Inter,Arial,sans-serif;max-width:480px;margin:0 auto;background:#fff;padding:24px;border-radius:12px;border:1px solid #eee;text-align:center"><img src="https://budgetbazar.netlify.app/logo.png" style="width:60px;height:60px;border-radius:50%"/><h2>Budget Bazar Service</h2><p>Click to reset:</p><a href="${link}" style="display:inline-block;background:#0B1220;color:#F5B800;padding:12px 24px;border-radius:8px;text-decoration:none">${link}</a></div>`);
+}
