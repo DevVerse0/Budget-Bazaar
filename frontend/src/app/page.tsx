@@ -24,15 +24,19 @@ export default function Home(){
         {t:'Support 24/7',d:"We're Here to Help",i:'💬'},
       ].map(s=><div key={s.t} className="border rounded-xl p-4 bg-white flex gap-3 items-center hover:shadow-md transition card-hover"><span className="text-2xl w-10 h-10 flex items-center justify-center bg-gold/15 rounded-lg">{s.i}</span><div><p className="text-sm font-semibold">{s.t}</p><p className="text-xs text-gray-500">{s.d}</p></div></div>)}
     </section>
-    <section className="container-bb mt-8">
-      <h2 className="font-bold text-lg mb-4">Shop by Categories</h2>
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-        {categories.length? categories.map((c:any)=><a key={c.id} href={`/shop?category=${c.slug}`} className="border rounded-xl p-4 text-center bg-white card-hover group">
-          {c.image_url ? <img src={c.image_url} className="w-14 h-14 mx-auto object-cover rounded-xl group-hover:scale-110 transition"/> : <div className="w-14 h-14 mx-auto bg-gradient-to-br from-gold/20 to-navy/10 rounded-xl flex items-center justify-center text-lg">{c.name[0]}</div>}
-          <p className="mt-3 text-xs font-medium">{c.name}</p>
-        </a>) : [
-          {n:'Mobile & Accessories',e:'📱'}, {n:'Audio',e:'🎧'}, {n:'Smart Watch',e:'⌚'}, {n:'Gaming',e:'🎮'}, {n:'Electronics',e:'💻'}, {n:'Computer',e:'🖥️'}
-        ].map(c=><a key={c.n} href="/shop" className="border rounded-xl p-4 text-center bg-white card-hover"><div className="w-14 h-14 mx-auto bg-gradient-to-br from-gold/20 to-navy/10 rounded-xl flex items-center justify-center text-xl">{c.e}</div><p className="mt-3 text-xs font-medium">{c.n}</p></a>)}
+    <section className="bg-[#f1f5f9] py-8 mt-8">
+      <div className="container-bb">
+        <h2 className="font-bold text-xl text-center">Featured Category</h2>
+        <p className="text-sm text-gray-600 text-center mb-6">Get Your Desired Product from Featured Category!</p>
+        <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+          {categories.length? categories.map((c:any)=><a key={c.id} href={`/shop?category=${c.slug}`} className="bg-white rounded-2xl p-4 text-center shadow-sm hover:shadow-lg card-hover group border">
+            {c.image_url ? <img src={c.image_url} className="w-10 h-10 mx-auto object-contain group-hover:scale-110 transition"/> : <div className="w-10 h-10 mx-auto flex items-center justify-center text-2xl">📦</div>}
+            <p className="mt-3 text-xs font-medium leading-tight">{c.name}</p>
+          </a>) : [
+            {n:'AC',e:'❄️'}, {n:'Portable Power Station',e:'🔋'}, {n:'Air Fryer',e:'🍟'}, {n:'Drone',e:'🚁'}, {n:'Gimbal',e:'📷'}, {n:'Table PC',e:'📱'}, {n:'TV',e:'📺'}, {n:'Fridge',e:'🧊'},
+            {n:'Mobile Phone',e:'📱'}, {n:'Mobile Accessories',e:'🔌'}, {n:'Portable SSD',e:'💾'}, {n:'WiFi Camera',e:'📹'}, {n:'Trimmer',e:'✂️'}, {n:'Smart Watch',e:'⌚'}, {n:'Earbuds',e:'🎧'}, {n:'Torch Light',e:'🔦'},
+          ].map(c=><a key={c.n} href="/shop" className="bg-white rounded-2xl p-4 text-center shadow-sm hover:shadow-lg card-hover border"><div className="text-2xl">{c.e}</div><p className="mt-3 text-xs font-medium leading-tight">{c.n}</p></a>)}
+        </div>
       </div>
     </section>
     <section className="container-bb mt-8">
