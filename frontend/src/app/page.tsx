@@ -1,5 +1,5 @@
 'use client';
-import { AirVent, BatteryCharging, CookingPot, Plane, Video, Tablet, Tv, Refrigerator, Smartphone, Cable, HardDrive, Camera, Scissors, Watch, Headphones, Flashlight } from 'lucide-react';
+import { AirVent, BatteryCharging, CookingPot, Plane, Video, Tablet, Tv, Refrigerator, Smartphone, Cable, HardDrive, Camera, Scissors, Watch, Headphones, Flashlight, Truck, BadgeCheck, PiggyBank, Headset } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/product/ProductCard';
@@ -19,11 +19,11 @@ export default function Home(){
     </section>
     <section className="container-bb grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
       {[
-        {t:'Fast Delivery',d:'Within 24-48 Hours',i:'🚚'},
-        {t:'Best Quality',d:'100% Original Products',i:'✅'},
-        {t:'Best Price',d:'Unbeatable Guarantee',i:'💰'},
-        {t:'Support 24/7',d:"We're Here to Help",i:'💬'},
-      ].map(s=><div key={s.t} className="border rounded-xl p-4 bg-white flex gap-3 items-center hover:shadow-md transition card-hover"><span className="text-2xl w-10 h-10 flex items-center justify-center bg-gold/15 rounded-lg">{s.i}</span><div><p className="text-sm font-semibold">{s.t}</p><p className="text-xs text-gray-500">{s.d}</p></div></div>)}
+        {t:'Fast Delivery',d:'Within 24-48 Hours',I:Truck},
+        {t:'Best Quality',d:'100% Original Products',I:BadgeCheck},
+        {t:'Best Price',d:'Unbeatable Guarantee',I:PiggyBank},
+        {t:'Support 24/7',d:"We're Here to Help",I:Headset},
+      ].map(s=><div key={s.t} className="border rounded-xl p-4 bg-white flex gap-3 items-center hover:shadow-md transition card-hover"><span className="w-10 h-10 flex items-center justify-center bg-gold/15 rounded-xl text-navy"><s.I size={20} className="stroke-[1.7]"/></span><div><p className="text-sm font-semibold">{s.t}</p><p className="text-xs text-gray-500">{s.d}</p></div></div>)}
     </section>
     <section className="bg-[#f1f5f9] py-8 mt-8">
       <div className="container-bb">
