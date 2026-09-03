@@ -1,4 +1,5 @@
 'use client';
+import { AirVent, BatteryCharging, CookingPot, Plane, Video, Tablet, Tv, Refrigerator, Smartphone, Cable, HardDrive, Camera, Scissors, Watch, Headphones, Flashlight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/product/ProductCard';
@@ -30,10 +31,10 @@ export default function Home(){
         <p className="text-sm text-gray-600 text-center mb-6">Get Your Desired Product from Featured Category!</p>
         <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
           {[
-            {name:'AC',slug:'ac',icon:'❄'}, {name:'Portable Power Station',slug:'portable-power-station',icon:'◫'}, {name:'Air Fryer',slug:'air-fryer',icon:'♨'}, {name:'Drone',slug:'drone',icon:'✈'}, {name:'Gimbal',slug:'gimbal',icon:'📹'}, {name:'Table PC',slug:'table-pc',icon:'▭'}, {name:'TV',slug:'tv',icon:'📺'}, {name:'Fridge',slug:'fridge',icon:'▯'},
-            {name:'Mobile Phone',slug:'mobile-phone',icon:'📱'}, {name:'Mobile Accessories',slug:'mobile-accessories',icon:'🔌'}, {name:'Portable SSD',slug:'portable-ssd',icon:'💾'}, {name:'WiFi Camera',slug:'wifi-camera',icon:'◎'}, {name:'Trimmer',slug:'trimmer',icon:'✂'}, {name:'Smart Watch',slug:'smart-watch',icon:'⌚'}, {name:'Earbuds',slug:'earbuds',icon:'🎧'}, {name:'Torch Light',slug:'torch-light',icon:'🔦'},
+            {name:'AC',slug:'ac',I:AirVent}, {name:'Portable Power Station',slug:'portable-power-station',I:BatteryCharging}, {name:'Air Fryer',slug:'air-fryer',I:CookingPot}, {name:'Drone',slug:'drone',I:Plane}, {name:'Gimbal',slug:'gimbal',I:Video}, {name:'Table PC',slug:'table-pc',I:Tablet}, {name:'TV',slug:'tv',I:Tv}, {name:'Fridge',slug:'fridge',I:Refrigerator},
+            {name:'Mobile Phone',slug:'mobile-phone',I:Smartphone}, {name:'Mobile Accessories',slug:'mobile-accessories',I:Cable}, {name:'Portable SSD',slug:'portable-ssd',I:HardDrive}, {name:'WiFi Camera',slug:'wifi-camera',I:Camera}, {name:'Trimmer',slug:'trimmer',I:Scissors}, {name:'Smart Watch',slug:'smart-watch',I:Watch}, {name:'Earbuds',slug:'earbuds',I:Headphones}, {name:'Torch Light',slug:'torch-light',I:Flashlight},
           ].map(c=><a key={c.slug} href={`/shop?category=${c.slug}`} className="bg-white rounded-2xl p-5 text-center shadow-[0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all border border-transparent hover:border-gold/20 group">
-            <div className="w-12 h-12 mx-auto flex items-center justify-center text-slate-700 group-hover:text-gold transition"><span className="text-[28px] font-light">{c.icon}</span></div>
+            <c.I className="w-9 h-9 mx-auto text-slate-600 group-hover:text-gold transition stroke-[1.5]" />
             <p className="mt-3 text-xs font-medium leading-tight text-slate-800">{c.name}</p>
           </a>)}
         </div>
