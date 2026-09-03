@@ -21,7 +21,7 @@ export default function Login(){
   };
   return (<div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-navy via-[#0f1a30] to-navy p-4">
     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 border">
-      <div className="text-center mb-6"><div className="inline-flex items-center gap-2 font-bold text-lg"><span className="bg-gold text-navy px-2.5 py-1 rounded-lg">BB</span> BUDGET <span className="text-gold">BAZAR</span></div><h1 className="font-bold text-xl mt-3">Welcome Back</h1><p className="text-sm text-gray-500">Login to your account</p></div>
+      <div className="text-center mb-6"><img src="/logo.png" alt="Budget Bazar Service" className="w-16 h-16 mx-auto rounded-full border-2 border-gold bg-white object-cover shadow"/><h1 className="font-bold text-xl mt-3">Welcome Back</h1><p className="text-sm text-gray-500">Budget Bazar Service</p></div>
       <form onSubmit={submit} className="space-y-4">
         <div><label className="text-sm font-medium">Email</label><input value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@gmail.com" type="email" className="w-full mt-1 border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold outline-none" required/></div>
         <div><label className="text-sm font-medium">Password</label><input value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" type="password" className="w-full mt-1 border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold outline-none" required/></div>
