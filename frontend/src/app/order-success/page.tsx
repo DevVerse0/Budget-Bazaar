@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 export default function Success({searchParams}:{searchParams:{order?:string}}){
   return (<div className="container-bb py-12 text-center">
     <h1 className="text-2xl font-bold text-green-600">Order Successfully Placed!</h1>
