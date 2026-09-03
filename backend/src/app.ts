@@ -18,7 +18,17 @@ import otpRoutes from './routes/otp.routes.js';
 const app = express();
 app.set('trust proxy', 1);
 app.use(helmet());
-app.use(cors({ origin: env.frontendUrl, credentials:true }));
+const allowedOrigins = env.frontendUrl.split(',').map(s=>s.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) return cb(null, true);
+    // allow all Cloudflare Pages preview URLs for this project if needed
+    if (origin.endsWith('.pages.dev')) return cb(null, true);
+    return cb(null, false);
+  },
+  credentials:true
+}));
 app.use(express.json({ limit:'5mb' }));
 app.use(express.urlencoded({ extended:true }));
 app.use(rateLimit({ windowMs: 15*60*1000, max: 200 }));
