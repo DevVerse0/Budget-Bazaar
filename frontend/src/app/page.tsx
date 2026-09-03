@@ -29,17 +29,10 @@ export default function Home(){
         <h2 className="font-bold text-xl text-center">Featured Category</h2>
         <p className="text-sm text-gray-600 text-center mb-6">Get Your Desired Product from Featured Category!</p>
         <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-          {(categories.length? categories : [
-            {id:'1',name:'AC',slug:'ac'}, {id:'2',name:'Portable Power Station',slug:'portable-power-station'}, {id:'3',name:'Air Fryer',slug:'air-fryer'}, {id:'4',name:'Drone',slug:'drone'}, {id:'5',name:'Gimbal',slug:'gimbal'}, {id:'6',name:'Table PC',slug:'table-pc'}, {id:'7',name:'TV',slug:'tv'}, {id:'8',name:'Fridge',slug:'fridge'},
-            {id:'9',name:'Mobile Phone',slug:'mobile-phone'}, {id:'10',name:'Mobile Accessories',slug:'mobile-accessories'}, {id:'11',name:'Portable SSD',slug:'portable-ssd'}, {id:'12',name:'WiFi Camera',slug:'wifi-camera'}, {id:'13',name:'Trimmer',slug:'trimmer'}, {id:'14',name:'Smart Watch',slug:'smart-watch'}, {id:'15',name:'Earbuds',slug:'earbuds'}, {id:'16',name:'Torch Light',slug:'torch-light'},
-          ]).map((c:any)=>{
-            const iconMap:any={ 'Mobile & Accessories':'📱','Audio':'🎧','Smart Watch':'⌚','Gaming':'🎮','Electronics':'📺','Computer Accessories':'🖥️','AC':'❄️','Portable Power Station':'🔋','Air Fryer':'🍟','Drone':'🚁','Gimbal':'📷','Table PC':'📱','TV':'📺','Fridge':'🧊','Mobile Phone':'📱','Mobile Accessories':'🔌','Portable SSD':'💾','WiFi Camera':'📹','Trimmer':'✂️','Smart Watch':'⌚','Earbuds':'🎧','Torch Light':'🔦' };
-            const e=iconMap[c.name]||'📦';
-            return (<a key={c.id||c.slug} href={`/shop?category=${c.slug}`} className="bg-white rounded-2xl p-4 text-center shadow-sm hover:shadow-lg card-hover group border">
-              {c.image_url ? <img src={c.image_url} className="w-10 h-10 mx-auto object-contain group-hover:scale-110 transition"/> : <div className="text-2xl">{e}</div>}
-              <p className="mt-3 text-xs font-medium leading-tight">{c.name}</p>
-            </a>);
-          })}
+          {[
+            {name:'AC',slug:'ac',e:'❄️'}, {name:'Portable Power Station',slug:'portable-power-station',e:'🔋'}, {name:'Air Fryer',slug:'air-fryer',e:'🍟'}, {name:'Drone',slug:'drone',e:'🚁'}, {name:'Gimbal',slug:'gimbal',e:'📷'}, {name:'Table PC',slug:'table-pc',e:'📱'}, {name:'TV',slug:'tv',e:'📺'}, {name:'Fridge',slug:'fridge',e:'🧊'},
+            {name:'Mobile Phone',slug:'mobile-phone',e:'📱'}, {name:'Mobile Accessories',slug:'mobile-accessories',e:'🔌'}, {name:'Portable SSD',slug:'portable-ssd',e:'💾'}, {name:'WiFi Camera',slug:'wifi-camera',e:'📹'}, {name:'Trimmer',slug:'trimmer',e:'✂️'}, {name:'Smart Watch',slug:'smart-watch',e:'⌚'}, {name:'Earbuds',slug:'earbuds',e:'🎧'}, {name:'Torch Light',slug:'torch-light',e:'🔦'},
+          ].map(c=><a key={c.slug} href={`/shop?category=${c.slug}`} className="bg-white rounded-2xl p-4 text-center shadow-sm hover:shadow-lg card-hover border"><div className="text-2xl">{c.e}</div><p className="mt-3 text-xs font-medium leading-tight">{c.name}</p></a>)}
         </div>
       </div>
     </section>
