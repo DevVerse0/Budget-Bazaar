@@ -29,13 +29,17 @@ export default function Home(){
         <h2 className="font-bold text-xl text-center">Featured Category</h2>
         <p className="text-sm text-gray-600 text-center mb-6">Get Your Desired Product from Featured Category!</p>
         <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-          {categories.length? categories.map((c:any)=><a key={c.id} href={`/shop?category=${c.slug}`} className="bg-white rounded-2xl p-4 text-center shadow-sm hover:shadow-lg card-hover group border">
-            {c.image_url ? <img src={c.image_url} className="w-10 h-10 mx-auto object-contain group-hover:scale-110 transition"/> : <div className="w-10 h-10 mx-auto flex items-center justify-center text-2xl">📦</div>}
-            <p className="mt-3 text-xs font-medium leading-tight">{c.name}</p>
-          </a>) : [
-            {n:'AC',e:'❄️'}, {n:'Portable Power Station',e:'🔋'}, {n:'Air Fryer',e:'🍟'}, {n:'Drone',e:'🚁'}, {n:'Gimbal',e:'📷'}, {n:'Table PC',e:'📱'}, {n:'TV',e:'📺'}, {n:'Fridge',e:'🧊'},
-            {n:'Mobile Phone',e:'📱'}, {n:'Mobile Accessories',e:'🔌'}, {n:'Portable SSD',e:'💾'}, {n:'WiFi Camera',e:'📹'}, {n:'Trimmer',e:'✂️'}, {n:'Smart Watch',e:'⌚'}, {n:'Earbuds',e:'🎧'}, {n:'Torch Light',e:'🔦'},
-          ].map(c=><a key={c.n} href="/shop" className="bg-white rounded-2xl p-4 text-center shadow-sm hover:shadow-lg card-hover border"><div className="text-2xl">{c.e}</div><p className="mt-3 text-xs font-medium leading-tight">{c.n}</p></a>)}
+          {(categories.length? categories : [
+            {id:'1',name:'AC',slug:'ac'}, {id:'2',name:'Portable Power Station',slug:'portable-power-station'}, {id:'3',name:'Air Fryer',slug:'air-fryer'}, {id:'4',name:'Drone',slug:'drone'}, {id:'5',name:'Gimbal',slug:'gimbal'}, {id:'6',name:'Table PC',slug:'table-pc'}, {id:'7',name:'TV',slug:'tv'}, {id:'8',name:'Fridge',slug:'fridge'},
+            {id:'9',name:'Mobile Phone',slug:'mobile-phone'}, {id:'10',name:'Mobile Accessories',slug:'mobile-accessories'}, {id:'11',name:'Portable SSD',slug:'portable-ssd'}, {id:'12',name:'WiFi Camera',slug:'wifi-camera'}, {id:'13',name:'Trimmer',slug:'trimmer'}, {id:'14',name:'Smart Watch',slug:'smart-watch'}, {id:'15',name:'Earbuds',slug:'earbuds'}, {id:'16',name:'Torch Light',slug:'torch-light'},
+          ]).map((c:any)=>{
+            const iconMap:any={ 'Mobile & Accessories':'📱','Audio':'🎧','Smart Watch':'⌚','Gaming':'🎮','Electronics':'📺','Computer Accessories':'🖥️','AC':'❄️','Portable Power Station':'🔋','Air Fryer':'🍟','Drone':'🚁','Gimbal':'📷','Table PC':'📱','TV':'📺','Fridge':'🧊','Mobile Phone':'📱','Mobile Accessories':'🔌','Portable SSD':'💾','WiFi Camera':'📹','Trimmer':'✂️','Smart Watch':'⌚','Earbuds':'🎧','Torch Light':'🔦' };
+            const e=iconMap[c.name]||'📦';
+            return (<a key={c.id||c.slug} href={`/shop?category=${c.slug}`} className="bg-white rounded-2xl p-4 text-center shadow-sm hover:shadow-lg card-hover group border">
+              {c.image_url ? <img src={c.image_url} className="w-10 h-10 mx-auto object-contain group-hover:scale-110 transition"/> : <div className="text-2xl">{e}</div>}
+              <p className="mt-3 text-xs font-medium leading-tight">{c.name}</p>
+            </a>);
+          })}
         </div>
       </div>
     </section>
