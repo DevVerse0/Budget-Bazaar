@@ -4,4 +4,7 @@ node_modules
 dist
 .next
 out
+.vercel
+.wrangler
+.dev.vars
 *.log
