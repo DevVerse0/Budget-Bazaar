@@ -12,8 +12,10 @@ export default function Register(){
     const { data, error } = await supabase.auth.signUp({ email, password, options:{ data:{ full_name:name, mobile } } });
     if(error){ setErr(error.message); setLoading(false); return; }
     if(data.user) await supabase.from('profiles').upsert({ id: data.user.id, full_name:name, email, mobile, role:'customer' });
+    // prevent auto-login before OTP verify
+    await supabase.auth.signOut(); localStorage.removeItem('token');
     // request OTP code via Budget Bazar Service Gmail (not link)
-    try{ await api.post('/otp/request', { email, type:'signup' }); router.push(`/verify-otp?email=${encodeURIComponent(email)}`); }catch(e:any){ setErr('Signup ok but code send failed: '+(e.response?.data?.error||e.message)); }
+    try{ await api.post('/otp/request', { email, type:'signup' }); router.push(`/verify-otp?email=${encodeURIComponent(email)}`); }catch(e:any){ setErr('Signup ok but code send failed: '+(e.response?.data?.error||e.message)); router.push(`/verify-otp?email=${encodeURIComponent(email)}`); }
     setLoading(false);
   };
   return (<div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-navy via-[#0f1a30] to-navy p-4">

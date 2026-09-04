@@ -50,7 +50,10 @@ export default function Account(){
   return (<div className="container-bb py-6 grid md:grid-cols-[260px_1fr] gap-6">
     <aside className="bg-white border rounded-2xl p-4 h-fit shadow-sm">
       <div className="flex flex-col items-center">
-        <div className="relative"><img src={preview||`https://i.pravatar.cc/100?u=${profile.email}`} alt="avatar" className="w-20 h-20 rounded-full object-cover border-2 border-gold"/><label className="absolute bottom-0 right-0 bg-navy text-white p-1.5 rounded-full cursor-pointer"><Camera size={14}/><input type="file" accept="image/*" className="hidden" onChange={e=>setPic(e.target.files?.[0]||null)}/></label></div>
+        <div className="relative">
+          {preview ? <img src={preview} alt="avatar" className="w-20 h-20 rounded-full object-cover border-2 border-gold"/> : <div className="w-20 h-20 rounded-full bg-gold text-navy flex items-center justify-center text-2xl font-black border-2 border-gold">{(profile.full_name||profile.email||'U')[0].toUpperCase()}</div>}
+          <label className="absolute bottom-0 right-0 bg-navy text-white p-1.5 rounded-full cursor-pointer"><Camera size={14}/><input type="file" accept="image/*" className="hidden" onChange={e=>setPic(e.target.files?.[0]||null)}/></label>
+        </div>
         <p className="font-semibold mt-2">{profile.full_name||'User'}</p><p className="text-xs text-gray-500">{profile.email}</p>
       </div>
       <nav className="mt-6 space-y-1">
