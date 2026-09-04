@@ -6,9 +6,12 @@ export default function Forgot(){
   const [email,setEmail]=useState(''); const [msg,setMsg]=useState(''); const [err,setErr]=useState(''); const [loading,setLoading]=useState(false);
   const submit=async(e:any)=>{
     e.preventDefault(); setErr(''); setMsg(''); setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
-    if(error) setErr(error.message); else setMsg('Password reset email sent! Check inbox & spam — from budgetbazaarservicebd@gmail.com');
-    try{ await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) }); }catch{}
+    try{
+      const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+      const j = await r.json();
+      if(!r.ok) throw new Error(j.error||'Failed');
+      setMsg('Beautiful reset email sent from budgetbazaarservicebd@gmail.com — check inbox & spam (Gmail template with BBS logo)!');
+    }catch(e:any){ setErr(e.message||'Failed to send'); }
     setLoading(false);
   };
   return (<div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-navy via-[#0f1a30] to-navy p-4">
