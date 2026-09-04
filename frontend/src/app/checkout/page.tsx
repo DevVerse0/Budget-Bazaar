@@ -23,7 +23,7 @@ const schema = z.object({
 });
 
 export default function Checkout(){
-  const { register, handleSubmit, watch, formState:{errors} } = useForm<any>({ resolver: zodResolver(schema), defaultValues:{ payment_method:'cod' } });
+  const { register, handleSubmit, watch, setValue, formState:{errors} } = useForm<any>({ resolver: zodResolver(schema), defaultValues:{ payment_method:'cod' } });
   const { items, clear } = useCartStore(); const router = useRouter();
   const [coupon,setCoupon]=useState(''); const [discount,setDiscount]=useState(0); const [couponMsg,setCouponMsg]=useState(''); const [applying,setApplying]=useState(false);
   const [verifyMsg,setVerifyMsg]=useState(''); const [verifyEmail,setVerifyEmail]=useState(''); const [checking,setChecking]=useState(true); const [needLogin,setNeedLogin]=useState(false);
@@ -39,10 +39,19 @@ export default function Checkout(){
         setVerifyMsg('Please verify your email with OTP before shopping. Code sent to '+user.email);
         setVerifyEmail(user.email||'');
         try{ await api.post('/otp/request', { email:user.email, type:'signup' }); }catch{}
+      } else {
+        // auto-fill from profile location - saved in My Profile, auto recommended at order time but changeable
+        const { data: prof } = await supabase.from('profiles').select('full_name,mobile,district,upazila,full_address').eq('id', user.id).single();
+        if(prof){
+          if(prof.full_name) setValue('customer_name', prof.full_name);
+          if(prof.mobile) setValue('mobile', prof.mobile);
+          if(prof.district) setValue('district', prof.district);
+          if(prof.full_address) setValue('full_address', prof.full_address);
+        }
       }
       setChecking(false);
     });
-  },[]);
+  },[setValue]);
 
   const subtotal = items.reduce((s,a)=>s+a.price*a.qty,0);
   const isInsideDhaka = districtVal?.toLowerCase().includes('dhaka');

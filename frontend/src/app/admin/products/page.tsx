@@ -7,7 +7,7 @@ import { Package, Upload, Sparkles, Eye, Trash2, CheckCircle2 } from 'lucide-rea
 export default function AdminProducts(){
   const [products,setProducts]=useState<any[]>([]);
   const [categories,setCategories]=useState<any[]>([]);
-  const [form,setForm]=useState({name:'',slug:'',brand:'',category_id:'',regular_price:'',sale_price:'',stock_quantity:'10',sku:'',short_description:''});
+  const [form,setForm]=useState({name:'',slug:'',brand:'',category_id:'',regular_price:'',sale_price:'',stock_quantity:'10',sku:'',short_description:'',is_new_arrival:false, featured:false});
   const [files,setFiles]=useState<FileList|null>(null);
   const [previews,setPreviews]=useState<string[]>([]);
   const [msg,setMsg]=useState(''); const [msgType,setMsgType]=useState<'success'|'error'|''>('');
@@ -37,7 +37,8 @@ export default function AdminProducts(){
       brand: form.brand || undefined, category_id: form.category_id || undefined,
       regular_price: Number(form.regular_price), sale_price: form.sale_price? Number(form.sale_price): undefined,
       stock_quantity: Number(form.stock_quantity), sku: form.sku || undefined,
-      status:'active', short_description: form.short_description || form.name, description: form.short_description || form.name
+      status:'active', short_description: form.short_description || form.name, description: form.short_description || form.name,
+      is_new_arrival: form.is_new_arrival, featured: form.featured, trending: form.featured
     };
     try{
       const res = await api.post('/products', payload, { headers: { Authorization: `Bearer ${token}` }});
@@ -52,8 +53,8 @@ export default function AdminProducts(){
           await supabase.from('product_images').insert({ product_id: prod.id, image_url: pub.publicUrl, display_order: i });
         }
       }
-      setMsg(`✅ "${form.name}" created! BBS Shop e live • ${files?.length||0} images uploaded`); setMsgType('success'); setShowSuccess(true);
-      setForm({name:'',slug:'',brand:'',category_id:'',regular_price:'',sale_price:'',stock_quantity:'10',sku:'',short_description:''});
+      setMsg(`✅ "${form.name}" created! ${form.is_new_arrival?'New Arrival ✓ ':''}BBS Shop e live • ${files?.length||0} images uploaded`); setMsgType('success'); setShowSuccess(true);
+      setForm({name:'',slug:'',brand:'',category_id:'',regular_price:'',sale_price:'',stock_quantity:'10',sku:'',short_description:'',is_new_arrival:false, featured:false});
       setFiles(null); (document.getElementById('fileInput') as any).value='';
       load();
     }catch(err:any){ const e=err.response?.data?.error; const msgText = typeof e==='string'? e : e? JSON.stringify(e, null, 2) : err.message; setMsg('❌ '+msgText); setMsgType('error'); }
@@ -89,6 +90,10 @@ export default function AdminProducts(){
         <input placeholder="Stock Qty *" type="number" value={form.stock_quantity} onChange={e=>setForm({...form,stock_quantity:e.target.value})} className="border rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-gold outline-none bg-gray-50" required/>
         <input placeholder="SKU (unique, e.g. BBS-001)" value={form.sku} onChange={e=>setForm({...form,sku:e.target.value})} className="border rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-gold outline-none bg-gray-50"/>
         <input placeholder="Short Description" value={form.short_description} onChange={e=>setForm({...form,short_description:e.target.value})} className="border rounded-xl px-3 py-2.5 md:col-span-2 focus:ring-2 focus:ring-gold outline-none bg-gray-50"/>
+        <div className="md:col-span-2 flex gap-4 flex-wrap">
+          <label className="flex items-center gap-2 text-sm font-bold cursor-pointer"><input type="checkbox" checked={form.is_new_arrival} onChange={e=>setForm({...form,is_new_arrival:e.target.checked})} className="accent-gold w-4 h-4"/> 🆕 New Arrival (control)</label>
+          <label className="flex items-center gap-2 text-sm font-bold cursor-pointer"><input type="checkbox" checked={form.featured} onChange={e=>setForm({...form,featured:e.target.checked})} className="accent-gold w-4 h-4"/> ⭐ Featured</label>
+        </div>
         <div className="md:col-span-2">
           <label className="text-sm font-bold flex items-center gap-1.5"><Upload size={14}/> Product Images (multiple)</label>
           <input id="fileInput" type="file" multiple accept="image/*" onChange={e=>setFiles(e.target.files)} className="w-full border-2 border-dashed rounded-xl px-3 py-3 mt-1.5 bg-gray-50 hover:bg-white transition"/>

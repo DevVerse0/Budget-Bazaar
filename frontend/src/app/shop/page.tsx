@@ -8,17 +8,24 @@ function ShopInner(){
   const [cats,setCats]=useState<any[]>([]);
   const params = useSearchParams(); const router = useRouter();
   const cat = params.get('category');
+  const isNew = params.get('new')==='1';
+  const isDeals = params.get('deals')==='1';
   const [priceMin,setPriceMin]=useState(''); const [priceMax,setPriceMax]=useState('');
   const [brand,setBrand]=useState(''); const [sort,setSort]=useState('newest'); const [inStock,setInStock]=useState(false);
   const load=async()=>{
     let q = supabase.from('products').select('*, product_images(image_url), categories!inner(slug,name)').eq('status','active');
     if(cat) q = q.eq('categories.slug', cat);
+    if(isNew) q = q.eq('is_new_arrival', true);
     q = q.order('created_at',{ascending:false});
     const { data } = await q;
-    if(data) setRaw(data);
+    if(data){
+      let filtered = data;
+      if(isDeals) filtered = filtered.filter((p:any)=> p.sale_price && p.sale_price < p.regular_price);
+      setRaw(filtered);
+    }
   };
   useEffect(()=>{ supabase.from('categories').select('*').then(({data})=>data&&setCats(data)); },[]);
-  useEffect(()=>{ load(); },[cat]);
+  useEffect(()=>{ load(); },[cat, isNew, isDeals]);
   const brands = useMemo(()=> Array.from(new Set(raw.map(r=>r.brand).filter(Boolean))) as string[], [raw]);
   const products = useMemo(()=>{
     let lst = [...raw];
@@ -50,7 +57,7 @@ function ShopInner(){
       <p className="text-xs text-gray-500">{products.length} products found</p>
     </aside>
     <div>
-      <div className="flex justify-between items-center text-sm mb-4 bg-white border rounded-xl px-4 py-3"><span className="font-semibold">{products.length} products {cat?`in ${cat}`:''} {brand?`• ${brand}`:''}</span><span className="text-gray-500 hidden sm:inline">Shop • Budget Bazar</span></div>
+      <div className="flex justify-between items-center text-sm mb-4 bg-white border rounded-xl px-4 py-3"><span className="font-semibold">{products.length} products {cat?`in ${cat}`:''} {isNew?'• New Arrivals':''} {isDeals?'• Deals':''} {brand?`• ${brand}`:''}</span><span className="text-gray-500 hidden sm:inline">Shop • Budget Bazar</span></div>
       {products.length===0 ? <p className="border rounded-xl p-10 text-center bg-white text-sm text-gray-500">No products found — Try clearing filters or create via Admin</p> : <div className="grid grid-cols-2 md:grid-cols-3 gap-4">{products.map((p:any)=><ProductCard key={p.id} p={{id:p.id, name:p.name, slug:p.slug, sale_price:p.sale_price, regular_price:p.regular_price, image:p.product_images?.[0]?.image_url, brand:p.brand, stock_quantity:p.stock_quantity}} />)}</div>}
     </div>
   </div>);

@@ -8,10 +8,10 @@ export default function Navigation(){
     { href:'/', label:'Home' },
     { href:'/shop', label:'Shop' },
     { href:'/shop', label:'Categories' },
-    { href:'/shop', label:'New Arrivals' },
-    { href:'/shop', label:'🔥 Deals' },
-    { href:'#', label:'About Us' },
-    { href:'#', label:'Contact Us' },
+    { href:'/shop?new=1', label:'New Arrivals' },
+    { href:'/shop?deals=1', label:'🔥 Deals' },
+    { href:'/about', label:'About Us' },
+    { href:'/contact', label:'Contact Us' },
   ];
   return (<div className="bg-[#0f1a33] border-t border-white/5">
     <div className="container-bb flex items-center gap-6 py-2 overflow-x-auto">
