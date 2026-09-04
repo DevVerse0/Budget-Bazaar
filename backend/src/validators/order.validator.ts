@@ -8,8 +8,9 @@ export const createOrderSchema = z.object({
   area: z.string().optional(),
   full_address: z.string().min(5),
   notes: z.string().optional(),
+  trx_id: z.string().optional(),
   items: z.array(z.object({ productId: z.string().uuid(), quantity: z.number().int().positive() })).min(1),
   couponCode: z.string().optional(),
-  payment_method: z.string().default('cod'),
+  payment_method: z.enum(['cod','bkash','nagad','rocket','card']).default('cod'),
 });
 export const trackOrderSchema = z.object({ order_number: z.string(), mobile: z.string() });

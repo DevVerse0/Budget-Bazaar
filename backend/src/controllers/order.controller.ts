@@ -34,17 +34,22 @@ export async function createOrder(req:Request,res:Response){
       }
     }
   }
-  // delivery charge from settings
+  // delivery charge from settings - inside/outside Dhaka
   const { data: delSetting } = await supabaseAdmin.from('settings').select('setting_value').eq('setting_key','delivery').single();
-  const deliveryCharge = delSetting?.setting_value?.insideCity ?? 60;
+  const isInside = body.district?.toLowerCase().includes('dhaka');
+  const deliveryCharge = isInside ? (delSetting?.setting_value?.insideCity ?? 60) : (delSetting?.setting_value?.outsideCity ?? 120);
   const total = subtotal + deliveryCharge - discount;
+  // payment trx validation for bkash/nagad
+  if(['bkash','nagad'].includes(body.payment_method) && !body.trx_id){
+    return res.status(400).json({ error:`Transaction ID required for ${body.payment_method}` });
+  }
   const order_number = generateOrderNumber();
   const { data: order, error: oErr } = await supabaseAdmin.from('orders').insert({
     order_number, customer_id: (req as any).user?.id || null,
     customer_name: body.customer_name, mobile: body.mobile, alternative_mobile: body.alternative_mobile,
-    division: body.division, district: body.district, area: body.area, full_address: body.full_address, notes: body.notes,
-    subtotal, delivery_charge: deliveryCharge, discount, total, payment_method: body.payment_method||'cod', status:'pending', coupon_code: body.couponCode || null
-  }).select().single();
+    division: body.division, district: body.district, area: body.area, full_address: body.full_address, notes: body.notes ? `${body.notes} ${body.trx_id?`TRX:${body.trx_id}`:''}` : (body.trx_id?`TRX:${body.trx_id}`:null),
+    subtotal, delivery_charge: deliveryCharge, discount, total, payment_method: body.payment_method||'cod', status:'pending', coupon_code: body.couponCode || null, trx_id: body.trx_id || null
+  } as any).select().single();
   if(oErr) return res.status(400).json({ error: oErr.message });
   for(const sn of itemsSnapshot){
     await supabaseAdmin.from('order_items').insert({ order_id: order.id, product_id: sn.product_id, product_name: sn.product_name, quantity: sn.quantity, unit_price: sn.unit_price, subtotal: sn.subtotal });
