@@ -19,10 +19,20 @@ const transporter = nodemailer.createTransport({
   connectionTimeout: 5000,
 });
 export async function sendMail(to:string, subject:string, html:string){
-  // try Resend first (HTTP, works on Railway)
-  try{ await sendViaResend(to, subject, html); return; }catch(e){ console.warn('Resend fail, fallback SMTP', (e as any)?.message); }
+  // try Resend first only if key exists (HTTP, works on Railway)
+  if(RESEND_KEY){
+    try{ await sendViaResend(to, subject, html); console.log('Email sent via Resend to', to); return; }catch(e){ console.warn('Resend fail, fallback SMTP', (e as any)?.message); }
+  } else {
+    console.log('RESEND_API_KEY not set, using SMTP');
+  }
   const from = process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com';
-  await transporter.sendMail({ from: `Budget Bazar Service <${from}>`, to, subject, html });
+  try{
+    await transporter.sendMail({ from: `Budget Bazar Service <${from}>`, to, subject, html });
+    console.log('Email sent via SMTP to', to);
+  }catch(e:any){
+    console.error('SMTP send failed', e?.message);
+    throw e;
+  }
 }
 export function otpEmailHtml(code:string, logoUrl:string){
   return `
@@ -39,13 +49,13 @@ export function otpEmailHtml(code:string, logoUrl:string){
       <p style="color:#64748b;font-size:12px;margin:16px 0 0">If you didn't request this, ignore this email.</p>
       <p style="color:#94a3b8;font-size:11px;margin:16px 0 0">Good Product • Low Price • Best Quality • Best Service</p>
     </div>
-    <div style="background:#F5B800;color:#0B1220;text-align:center;padding:10px;font-size:12px;font-weight:600">https://budgetbazar.netlify.app</div>
+     <div style="background:#F5B800;color:#0B1220;text-align:center;padding:10px;font-size:12px;font-weight:600">https://budget-bazaar.pages.dev</div>
   </div>`;
 }
 export async function sendOtpCode(to:string, code:string){
-  const logo = 'https://budgetbazar.netlify.app/logo.png';
+  const logo = 'https://budget-bazaar.pages.dev/logo.png';
   await sendMail(to, `Budget Bazar Service - Your Code ${code}`, otpEmailHtml(code, logo));
 }
 export async function sendResetLink(to:string, link:string){
-  await sendMail(to, 'Budget Bazar Service - Reset Password', `<div style="font-family:Inter,Arial,sans-serif;max-width:480px;margin:0 auto;background:#fff;padding:24px;border-radius:12px;border:1px solid #eee;text-align:center"><img src="https://budgetbazar.netlify.app/logo.png" style="width:60px;height:60px;border-radius:50%"/><h2>Budget Bazar Service</h2><p>Click to reset:</p><a href="${link}" style="display:inline-block;background:#0B1220;color:#F5B800;padding:12px 24px;border-radius:8px;text-decoration:none">${link}</a></div>`);
+  await sendMail(to, 'Budget Bazar Service - Reset Password', `<div style="font-family:Inter,Arial,sans-serif;max-width:480px;margin:0 auto;background:#fff;padding:24px;border-radius:12px;border:1px solid #eee;text-align:center"><img src="https://budget-bazaar.pages.dev/logo.png" style="width:60px;height:60px;border-radius:50%"/><h2>Budget Bazar Service</h2><p>Click to reset:</p><a href="${link}" style="display:inline-block;background:#0B1220;color:#F5B800;padding:12px 24px;border-radius:8px;text-decoration:none">${link}</a></div>`);
 }

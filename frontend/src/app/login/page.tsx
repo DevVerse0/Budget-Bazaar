@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Trophy, ShieldCheck, Coins } from 'lucide-react';
+import { api } from '@/services/api';
 
 export default function Login(){
   const [email,setEmail]=useState('');
@@ -19,11 +20,21 @@ export default function Login(){
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if(error){ setErr(error.message); setLoading(false); return; }
+    // Block login until OTP verified
+    const user = data.user;
+    if(user && !user.email_confirmed_at){
+      try{ await api.post('/otp/request', { email, type:'signup' }); }catch{}
+      setErr('Please verify your email with OTP code sent to '+email);
+      setLoading(false);
+      setTimeout(()=> router.push(`/verify-otp?email=${encodeURIComponent(email)}`), 800);
+      return;
+    }
     if(data.session) localStorage.setItem('token', data.session.access_token);
     const token = data.session?.access_token;
     try{
       const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, { headers: { Authorization:`Bearer ${token}` }});
       const j = await r.json();
+      if(j.error && j.code==='EMAIL_NOT_VERIFIED'){ setErr(j.error); setLoading(false); router.push(`/verify-otp?email=${encodeURIComponent(email)}`); return; }
       if(j.profile?.role==='admin') router.push('/admin/dashboard');
       else router.push('/');
     }catch{ router.push('/'); }

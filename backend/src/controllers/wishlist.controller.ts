@@ -12,6 +12,7 @@ export async function getWishlist(req:Request,res:Response){
 export async function toggleWishlist(req:Request,res:Response){
   const user = (req as any).user;
   if(!user) return res.status(401).json({ error:'Unauthorized' });
+  if(!user.email_confirmed_at) return res.status(403).json({ error:'Please verify your email with OTP before adding to wishlist', code:'EMAIL_NOT_VERIFIED', email:user.email });
   const { productId } = req.body;
   if(!productId) return res.status(400).json({ error:'productId required' });
   const { data: existing } = await supabaseAdmin.from('wishlist').select('id').eq('user_id', user.id).eq('product_id', productId).single();

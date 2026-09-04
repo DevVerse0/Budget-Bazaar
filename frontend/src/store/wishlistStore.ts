@@ -20,9 +20,15 @@ export const useWishlistStore = create<S>()(persist((set,get)=>({
       if(token){
         const res = await api.post('/wishlist/toggle', { productId:id });
         // server truth: if added:false means removed, added:true means added - already optimistic matches
-        // if mismatch, revert? keep optimistic
       }
-    }catch{ /* keep local for guest */ }
+    }catch(e:any){
+      if(e?.response?.data?.code==='EMAIL_NOT_VERIFIED'){
+        // revert optimistic
+        const cur = get().ids;
+        set({ ids: exists ? [...cur, id] : cur.filter(x=>x!==id) });
+        if(typeof window!=='undefined') location.href = `/verify-otp?email=${encodeURIComponent(e.response.data.email||'')}`;
+      }
+    }
   },
   syncFromServer: async ()=>{
     try{

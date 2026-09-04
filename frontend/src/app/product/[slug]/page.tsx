@@ -13,11 +13,23 @@ export default function ProductPage({params}:{params:{slug:string}}){
   const images = p.product_images || [];
   const main = images[idx]?.image_url;
   const disc = p.regular_price && p.sale_price ? Math.round((1 - p.sale_price/p.regular_price)*100) : 0;
-  const handleAdd = () => {
+  const checkVerified = async () => {
+    const { data } = await supabase.auth.getSession();
+    const u = data.session?.user;
+    if(u && !u.email_confirmed_at){
+      setToast(`Please verify email ${u.email} with OTP before shopping`);
+      setTimeout(()=> location.href=`/verify-otp?email=${encodeURIComponent(u.email||'')}`, 1200);
+      return false;
+    }
+    return true;
+  };
+  const handleAdd = async () => {
+    if(!(await checkVerified())) return;
     add({productId:p.id, name:p.name, price: p.sale_price||p.regular_price, qty, image: main});
     setToast(`${p.name} • ${qty} × ৳${(p.sale_price||p.regular_price).toLocaleString()} added to cart`);
   };
-  const handleBuy = () => {
+  const handleBuy = async () => {
+    if(!(await checkVerified())) return;
     add({productId:p.id, name:p.name, price: p.sale_price||p.regular_price, qty, image: main});
     location.href='/checkout';
   };

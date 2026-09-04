@@ -6,13 +6,26 @@ import { orderService } from '@/services/order.service';
 import { api } from '@/services/api';
 import { useCartStore } from '@/store/cartStore';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 const schema = z.object({ customer_name:z.string().min(2,'Name required'), mobile:z.string().min(11,'Valid mobile required'), district:z.string().min(1,'District required'), full_address:z.string().min(5,'Address required') });
 export default function Checkout(){
   const { register, handleSubmit, formState:{errors} } = useForm({ resolver: zodResolver(schema) });
   const { items, clear } = useCartStore(); const router = useRouter();
   const [coupon,setCoupon]=useState(''); const [discount,setDiscount]=useState(0); const [couponMsg,setCouponMsg]=useState(''); const [applying,setApplying]=useState(false);
+  const [verifyMsg,setVerifyMsg]=useState(''); const [verifyEmail,setVerifyEmail]=useState(''); const [checking,setChecking]=useState(true);
+  useEffect(()=>{
+    supabase.auth.getSession().then(async({data})=>{
+      const user = data.session?.user;
+      if(user && !user.email_confirmed_at){
+        setVerifyMsg('Please verify your email with OTP before shopping. Code sent to '+user.email);
+        setVerifyEmail(user.email||'');
+        try{ await api.post('/otp/request', { email:user.email, type:'signup' }); }catch{}
+      }
+      setChecking(false);
+    });
+  },[]);
   const subtotal = items.reduce((s,a)=>s+a.price*a.qty,0);
   const delivery = 60;
   const total = Math.max(0, subtotal + delivery - discount);
@@ -28,9 +41,30 @@ export default function Checkout(){
   const removeCoupon = ()=>{ setCoupon(''); setDiscount(0); setCouponMsg(''); };
   const onSubmit = async (data:any)=>{
     if(items.length===0) return alert('Cart empty');
+    // block unverified
+    const { data: sess } = await supabase.auth.getSession();
+    const u = sess.session?.user;
+    if(u && !u.email_confirmed_at){
+      alert('Please verify your email with OTP before shopping. Check '+u.email);
+      router.push(`/verify-otp?email=${encodeURIComponent(u.email||'')}`);
+      return;
+    }
     const payload = { ...data, items: items.map(i=>({productId:i.productId, quantity:i.qty})), payment_method:'cod', couponCode: discount>0? coupon.trim() : undefined };
-    try{ const res= await orderService.create(payload); clear(); router.push(`/order-success?order=${res.order.order_number}`);} catch(e:any){ alert(e.response?.data?.error||'Order failed');}
+    try{ const res= await orderService.create(payload); clear(); router.push(`/order-success?order=${res.order.order_number}`);} catch(e:any){
+      const msg = e.response?.data?.error || 'Order failed';
+      if(e.response?.data?.code==='EMAIL_NOT_VERIFIED'){
+        alert(msg);
+        const { data: s } = await supabase.auth.getSession();
+        router.push(`/verify-otp?email=${encodeURIComponent(s.session?.user?.email||data.mobile||'')}`);
+        return;
+      }
+      alert(msg);
+    }
   };
+  if(checking) return (<div className="container-bb py-12 text-center text-sm">Checking verification...</div>);
+  if(verifyMsg) return (<div className="container-bb py-12 text-center">
+    <div className="max-w-md mx-auto bg-amber-50 border border-amber-200 rounded-xl p-6"><p className="font-bold text-amber-900">Email Verification Required</p><p className="text-sm text-amber-800 mt-2">{verifyMsg}</p><Link href={`/verify-otp?email=${encodeURIComponent(verifyEmail)}`} className="inline-block mt-4 bg-gold px-6 py-2 rounded-xl font-bold">Go to Verify</Link></div>
+  </div>);
   if(items.length===0) return (<div className="container-bb py-16 text-center"><p className="font-bold">Your cart is empty</p><Link href="/shop" className="inline-block mt-4 bg-gold px-6 py-2 rounded-xl font-bold">Shop Now</Link></div>);
   return (<div className="container-bb py-6 pb-32 md:pb-6 grid lg:grid-cols-[1.1fr_420px] gap-6">
     <form onSubmit={handleSubmit(onSubmit)} className="border rounded-xl p-5 bg-white space-y-3 shadow-sm">
