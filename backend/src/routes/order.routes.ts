@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createOrder, listOrders, getOrder, updateOrderStatus, trackOrder } from '../controllers/order.controller.js';
+import { createOrder, listOrders, getOrder, updateOrderStatus, trackOrder, myOrders } from '../controllers/order.controller.js';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { adminMiddleware } from '../middleware/admin.middleware.js';
 import { validate } from '../middleware/validation.middleware.js';
@@ -7,6 +7,7 @@ import { createOrderSchema, trackOrderSchema } from '../validators/order.validat
 const r = Router();
 r.post('/', authMiddleware, validate(createOrderSchema), createOrder);
 r.post('/track', validate(trackOrderSchema), trackOrder);
+r.get('/my', authMiddleware, myOrders);
 r.get('/', authMiddleware, adminMiddleware, listOrders);
 r.get('/:id', authMiddleware, getOrder);
 r.put('/:id/status', authMiddleware, adminMiddleware, updateOrderStatus);

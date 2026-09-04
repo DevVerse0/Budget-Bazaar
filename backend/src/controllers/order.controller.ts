@@ -85,3 +85,10 @@ export async function trackOrder(req:Request,res:Response){
   if(error) return res.status(404).json({ error:'Order not found' });
   res.json(data);
 }
+export async function myOrders(req:Request,res:Response){
+  const user = (req as any).user;
+  if(!user) return res.status(401).json({ error:'Unauthorized' });
+  const { data, error } = await supabaseAdmin.from('orders').select('*, order_items(*)').eq('customer_id', user.id).order('created_at',{ascending:false});
+  if(error) return res.status(400).json({ error:error.message });
+  res.json(data);
+}
