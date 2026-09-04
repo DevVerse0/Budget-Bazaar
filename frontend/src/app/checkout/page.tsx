@@ -152,15 +152,23 @@ export default function Checkout(){
                 <Banknote size={20} className="text-navy"/><div><p className="font-bold text-sm">Cash on Delivery</p><p className="text-xs text-gray-500">Pay when product arrives</p></div>
                 <span className="ml-auto text-xs bg-green-500 text-white px-2 py-1 rounded-full">Popular</span>
               </label>
-              <label className={`flex items-center gap-3 border-2 rounded-xl p-3 cursor-pointer transition ${payment==='bkash'?'border-pink-500 bg-pink-50':'border-gray-200 bg-gray-50 hover:bg-white'}`}>
+              <label className={`flex items-center gap-3 border-2 rounded-xl p-3 cursor-pointer transition-all hover:shadow-md ${payment==='bkash'?'border-pink-500 bg-pink-50 shadow-pink-100 shadow':'border-gray-200 bg-gray-50 hover:bg-white hover:border-pink-200'}`}>
                 <input type="radio" value="bkash" {...register('payment_method')} className="accent-pink-500"/>
-                <div className="w-8 h-8 bg-[#E2136E] rounded-lg flex items-center justify-center text-white font-black text-xs">bKash</div>
-                <div><p className="font-bold text-sm">bKash</p><p className="text-xs text-gray-500">017xx • Send Money</p></div>
+                <div className="w-10 h-10 bg-white rounded-xl border border-pink-100 flex items-center justify-center p-1.5 shadow-sm shrink-0">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/BKash_logo.svg/320px-BKash_logo.svg.png" alt="bKash" className="w-full h-full object-contain" onError={(e:any)=>{e.currentTarget.style.display='none'; e.currentTarget.nextElementSibling.style.display='block';}}/>
+                  <span style={{display:'none'}} className="text-[10px] font-black text-[#E2136E]">bKash</span>
+                </div>
+                <div><p className="font-bold text-sm flex items-center gap-1">bKash <span className="text-[10px] bg-pink-500 text-white px-1.5 py-0.5 rounded">PAY</span></p><p className="text-xs text-gray-500">Send Money • Instant Verify</p></div>
+                {payment==='bkash' && <span className="ml-auto w-5 h-5 bg-pink-500 rounded-full flex items-center justify-center text-white text-xs">✓</span>}
               </label>
-              <label className={`flex items-center gap-3 border-2 rounded-xl p-3 cursor-pointer transition ${payment==='nagad'?'border-orange-500 bg-orange-50':'border-gray-200 bg-gray-50 hover:bg-white'}`}>
+              <label className={`flex items-center gap-3 border-2 rounded-xl p-3 cursor-pointer transition-all hover:shadow-md ${payment==='nagad'?'border-orange-500 bg-orange-50 shadow-orange-100 shadow':'border-gray-200 bg-gray-50 hover:bg-white hover:border-orange-200'}`}>
                 <input type="radio" value="nagad" {...register('payment_method')} className="accent-orange-500"/>
-                <div className="w-8 h-8 bg-[#FF6A00] rounded-lg flex items-center justify-center text-white font-black text-[10px]">Nagad</div>
-                <div><p className="font-bold text-sm">Nagad</p><p className="text-xs text-gray-500">Fast & Secure</p></div>
+                <div className="w-10 h-10 bg-white rounded-xl border border-orange-100 flex items-center justify-center p-1.5 shadow-sm shrink-0">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Nagad_Logo.svg/320px-Nagad_Logo.svg.png" alt="Nagad" className="w-full h-full object-contain" onError={(e:any)=>{e.currentTarget.style.display='none'; e.currentTarget.nextElementSibling.style.display='block';}}/>
+                  <span style={{display:'none'}} className="text-[10px] font-black text-[#FF6A00]">Nagad</span>
+                </div>
+                <div><p className="font-bold text-sm flex items-center gap-1">Nagad <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded">FAST</span></p><p className="text-xs text-gray-500">Mobile Banking • Secure</p></div>
+                {payment==='nagad' && <span className="ml-auto w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs">✓</span>}
               </label>
               {payment!=='cod' && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 animate-[slideIn_0.2s_ease]">
