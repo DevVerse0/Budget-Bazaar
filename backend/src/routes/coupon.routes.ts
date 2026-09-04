@@ -1,1 +1,6 @@
-import { Router } from 'express'; const r = Router(); r.get('/', (req,res)=>res.json({msg:'coupon ok'})); export default r;
+import { Router } from 'express';
+import { validateCoupon } from '../controllers/coupon.controller.js';
+const r = Router();
+r.post('/validate', validateCoupon);
+r.get('/', (req,res)=>res.json({msg:'coupon ok'}));
+export default r;

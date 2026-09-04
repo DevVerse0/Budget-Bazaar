@@ -3,25 +3,87 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { orderService } from '@/services/order.service';
+import { api } from '@/services/api';
 import { useCartStore } from '@/store/cartStore';
 import { useRouter } from 'next/navigation';
-const schema = z.object({ customer_name:z.string().min(2), mobile:z.string().min(11), district:z.string().min(1), full_address:z.string().min(5) });
+import { useState } from 'react';
+import Link from 'next/link';
+const schema = z.object({ customer_name:z.string().min(2,'Name required'), mobile:z.string().min(11,'Valid mobile required'), district:z.string().min(1,'District required'), full_address:z.string().min(5,'Address required') });
 export default function Checkout(){
-  const { register, handleSubmit } = useForm({ resolver: zodResolver(schema) });
+  const { register, handleSubmit, formState:{errors} } = useForm({ resolver: zodResolver(schema) });
   const { items, clear } = useCartStore(); const router = useRouter();
-  const onSubmit = async (data:any)=>{
-    const payload = { ...data, items: items.map(i=>({productId:i.productId, quantity:i.qty})), payment_method:'cod' };
-    try{ const res= await orderService.create(payload); clear(); router.push(`/order-success?order=${res.order.order_number}`);} catch(e:any){ alert(e.response?.data?.error||'Failed');}
+  const [coupon,setCoupon]=useState(''); const [discount,setDiscount]=useState(0); const [couponMsg,setCouponMsg]=useState(''); const [applying,setApplying]=useState(false);
+  const subtotal = items.reduce((s,a)=>s+a.price*a.qty,0);
+  const delivery = 60;
+  const total = Math.max(0, subtotal + delivery - discount);
+  const applyCoupon = async ()=>{
+    if(!coupon.trim()) return;
+    setApplying(true); setCouponMsg('');
+    try{
+      const r = await api.post('/coupons/validate', { code:coupon.trim(), subtotal });
+      if(r.data.valid){ setDiscount(Number(r.data.discount)); setCouponMsg(`✓ Coupon applied: -৳${Number(r.data.discount).toLocaleString()}`); }
+    }catch(e:any){ setDiscount(0); setCouponMsg(e.response?.data?.error || 'Invalid coupon'); }
+    setApplying(false);
   };
-  return (<div className="container-bb py-6 pb-32 md:pb-6 grid md:grid-cols-2 gap-6">
-    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-xl p-4 bg-white space-y-3 shadow-sm">
-      <h2 className="font-bold">Checkout / Order Form</h2>
-      <input {...register('customer_name')} placeholder="Full Name" className="w-full border rounded-lg px-3 py-3 text-base" autoComplete="name" />
-      <input {...register('mobile')} placeholder="01712345678" type="tel" className="w-full border rounded-lg px-3 py-3 text-base" inputMode="numeric" />
-      <input {...register('district')} placeholder="District" className="w-full border rounded-lg px-3 py-3 text-base" />
-      <input {...register('full_address')} placeholder="Full Address" className="w-full border rounded-lg px-3 py-3 text-base" />
-      <button type="submit" className="w-full bg-gold hover:bg-yellow-500 py-3 rounded-xl font-semibold shadow">Place Order</button>
+  const removeCoupon = ()=>{ setCoupon(''); setDiscount(0); setCouponMsg(''); };
+  const onSubmit = async (data:any)=>{
+    if(items.length===0) return alert('Cart empty');
+    const payload = { ...data, items: items.map(i=>({productId:i.productId, quantity:i.qty})), payment_method:'cod', couponCode: discount>0? coupon.trim() : undefined };
+    try{ const res= await orderService.create(payload); clear(); router.push(`/order-success?order=${res.order.order_number}`);} catch(e:any){ alert(e.response?.data?.error||'Order failed');}
+  };
+  if(items.length===0) return (<div className="container-bb py-16 text-center"><p className="font-bold">Your cart is empty</p><Link href="/shop" className="inline-block mt-4 bg-gold px-6 py-2 rounded-xl font-bold">Shop Now</Link></div>);
+  return (<div className="container-bb py-6 pb-32 md:pb-6 grid lg:grid-cols-[1.1fr_420px] gap-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-xl p-5 bg-white space-y-3 shadow-sm">
+      <h2 className="font-black text-lg">Checkout</h2>
+      <p className="text-sm text-gray-500 -mt-2 mb-2">Cash on Delivery • Delivery ৳{delivery}</p>
+      <div>
+        <input {...register('customer_name')} placeholder="Full Name *" className="w-full border rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none" autoComplete="name" />
+        {errors.customer_name && <p className="text-xs text-red-500 mt-1">{errors.customer_name.message as string}</p>}
+      </div>
+      <div>
+        <input {...register('mobile')} placeholder="Mobile 01712345678 *" type="tel" className="w-full border rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none" inputMode="numeric" />
+        {errors.mobile && <p className="text-xs text-red-500 mt-1">{errors.mobile.message as string}</p>}
+      </div>
+      <div>
+        <input {...register('district')} placeholder="District *" className="w-full border rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none" />
+        {errors.district && <p className="text-xs text-red-500 mt-1">{errors.district.message as string}</p>}
+      </div>
+      <div>
+        <input {...register('full_address')} placeholder="Full Address (House, Road, Area) *" className="w-full border rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none" />
+        {errors.full_address && <p className="text-xs text-red-500 mt-1">{errors.full_address.message as string}</p>}
+      </div>
+      <button type="submit" className="w-full bg-gold hover:bg-[#E6A800] py-3.5 rounded-xl font-black shadow">Place Order • ৳{total.toLocaleString()}</button>
+      <p className="text-xs text-gray-500 text-center">By placing order you agree to our Terms</p>
     </form>
-    <div className="border rounded-xl p-4 bg-white h-fit"><h3 className="font-semibold">Order Summary</h3><p className="text-sm text-gray-500 mt-2">{items.length} items - Cash on Delivery</p></div>
+    <div className="space-y-4">
+      <div className="border rounded-xl p-4 bg-white">
+        <h3 className="font-bold">Have a Coupon?</h3>
+        <div className="flex gap-2 mt-3">
+          <input value={coupon} onChange={e=>setCoupon(e.target.value)} placeholder="Enter coupon code" className="flex-1 border rounded-xl px-3 py-2.5 text-sm uppercase tracking-widest focus:ring-2 focus:ring-gold focus:border-gold outline-none"/>
+          {discount>0 ? <button type="button" onClick={removeCoupon} className="px-4 py-2 rounded-xl border text-sm font-semibold">Remove</button> : <button type="button" onClick={applyCoupon} disabled={applying} className="px-5 py-2 rounded-xl bg-navy text-white text-sm font-bold disabled:opacity-50">{applying?'...':'Apply'}</button>}
+        </div>
+        {couponMsg && <p className={`text-xs mt-2 ${discount>0?'text-green-600':'text-red-500'}`}>{couponMsg}</p>}
+      </div>
+      <div className="border rounded-xl p-4 bg-white">
+        <h3 className="font-bold">Order Summary <span className="font-normal text-gray-500">({items.length} items)</span></h3>
+        <div className="mt-3 space-y-2 max-h-[260px] overflow-auto pr-1">
+          {items.map(i=><div key={i.productId} className="flex gap-3 text-sm border-b py-2 last:border-0">
+            <img src={i.image} alt={i.name} className="w-12 h-12 rounded-lg bg-gray-50 object-contain border p-1"/>
+            <div className="flex-1 min-w-0">
+              <p className="line-clamp-1 font-medium">{i.name}</p>
+              <p className="text-xs text-gray-500">৳{i.price.toLocaleString()} × {i.qty}</p>
+            </div>
+            <span className="font-bold">৳{(i.price*i.qty).toLocaleString()}</span>
+          </div>)}
+        </div>
+        <div className="mt-4 space-y-2 text-sm border-t pt-3">
+          <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-semibold">৳{subtotal.toLocaleString()}</span></div>
+          <div className="flex justify-between"><span className="text-gray-600">Delivery</span><span className="font-semibold">৳{delivery}</span></div>
+          {discount>0 && <div className="flex justify-between text-green-600"><span>Discount ({coupon.toUpperCase()})</span><span>-৳{discount.toLocaleString()}</span></div>}
+          <div className="h-px bg-gray-100 my-2"/>
+          <div className="flex justify-between text-base font-black"><span>Total (COD)</span><span>৳{total.toLocaleString()}</span></div>
+        </div>
+      </div>
+    </div>
   </div>);
 }
