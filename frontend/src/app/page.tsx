@@ -42,7 +42,7 @@ export default function Home(){
     </section>
     <section className="container-bb mt-8">
       <div className="flex justify-between items-center mb-4"><h2 className="font-bold">Popular Products</h2><a href="/shop" className="text-sm text-blue-600">View All</a></div>
-      {products.length===0 ? <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{[1,2,3,4].map(i=><div key={i} className="border rounded-xl p-3 bg-white"><div className="skeleton h-40 rounded-lg"/><div className="skeleton h-4 mt-3 rounded"/><div className="skeleton h-4 mt-2 w-1/2 rounded"/></div>)}</div> : <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{products.map((p:any)=><ProductCard key={p.id} p={{name:p.name, slug:p.slug, sale_price:p.sale_price, regular_price:p.regular_price, image:p.product_images?.[0]?.image_url, brand:p.brand, stock_quantity:p.stock_quantity}} />)}</div>}
+      {products.length===0 ? <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{[1,2,3,4].map(i=><div key={i} className="border rounded-xl p-3 bg-white"><div className="skeleton h-40 rounded-lg"/><div className="skeleton h-4 mt-3 rounded"/><div className="skeleton h-4 mt-2 w-1/2 rounded"/></div>)}</div> : <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{products.map((p:any)=><ProductCard key={p.id} p={{id:p.id, name:p.name, slug:p.slug, sale_price:p.sale_price, regular_price:p.regular_price, image:p.product_images?.[0]?.image_url, brand:p.brand, stock_quantity:p.stock_quantity}} />)}</div>}
     </section>
   </div>);
 }

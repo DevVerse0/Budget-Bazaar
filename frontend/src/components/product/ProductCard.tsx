@@ -7,8 +7,8 @@ export default function ProductCard({p}:{p:P}){
   const { ids, toggle } = useWishlistStore();
   const wish = p.id ? ids.includes(p.id) : false;
   return (<div className="border rounded-xl p-3 bg-white card-hover group relative overflow-hidden">
-    <button onClick={()=> p.id && toggle(p.id)} className={`absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow backdrop-blur transition ${wish?'bg-pink-500 text-white':'bg-white/90 text-gray-400 hover:text-pink-500'}`} title="Wishlist">
-      <Heart size={16} fill={wish? 'currentColor':'none'}/>
+    <button onClick={(e)=>{e.preventDefault(); e.stopPropagation(); if(p.id) toggle(p.id)}} className={`absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md backdrop-blur transition-all hover:scale-110 active:scale-95 ${wish?'bg-red-500 text-white shadow-red-200':'bg-white/95 text-gray-400 hover:text-red-500 border border-gray-100'}`} title={wish?'Remove from Wishlist':'Add to Wishlist'}>
+      <Heart size={16} fill={wish? 'currentColor':'none'} className={wish?'text-white':'text-gray-500'}/>
     </button>
     <div className="overflow-hidden rounded-lg bg-gray-50">
       {p.image ? <img src={p.image} alt={p.name} className="w-full h-40 object-contain group-hover:scale-110 transition duration-500"/> : <div className="w-full h-40 bg-gray-50 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
