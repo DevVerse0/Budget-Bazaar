@@ -24,23 +24,39 @@ const transporter = nodemailer.createTransport({
   connectionTimeout: 10000,
   greetingTimeout: 10000,
 });
+// SendGrid HTTP API (works on Railway - HTTPS not blocked) - get key from app.sendgrid.com
+const SENDGRID_KEY = process.env.SENDGRID_API_KEY || '';
+async function sendViaSendGrid(to:string, subject:string, html:string){
+  const from = process.env.SENDGRID_FROM || process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com';
+  const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    method:'POST',
+    headers:{ 'Authorization': `Bearer ${SENDGRID_KEY}`, 'Content-Type':'application/json' },
+    body: JSON.stringify({ personalizations:[{ to:[{ email:to }] }], from:{ email:from, name:'Budget Bazar Service' }, subject, content:[{ type:'text/html', value: html }] })
+  });
+  if(!res.ok){ const t=await res.text(); throw new Error(`SendGrid ${res.status}: ${t}`); }
+}
 export async function sendMail(to:string, subject:string, html:string){
-  // try Resend first only if key exists (HTTP, works on Railway)
+  // 1. Resend (HTTP)
   if(RESEND_KEY){
     try{ await sendViaResend(to, subject, html); console.log('Email sent via Resend to', to, 'from', RESEND_FROM); return; }catch(e){
-      console.warn('Resend fail, fallback SMTP', (e as any)?.message);
-      // If Resend 403 due to onboarding domain, give clear hint
+      console.warn('Resend fail, fallback to SendGrid/SMTP', (e as any)?.message);
       if(String((e as any)?.message).includes('403')) console.warn('Fix: Verify domain at resend.com/domains and set RESEND_FROM=noreply@yourdomain.com');
     }
   } else {
-    console.log('RESEND_API_KEY not set, using SMTP');
+    console.log('RESEND_API_KEY not set, trying SendGrid/SMTP');
   }
+  // 2. SendGrid HTTP (works on Railway, no SMTP block) - single sender verify budgetbazaarservicebd@gmail.com at app.sendgrid.com
+  if(SENDGRID_KEY){
+    try{ await sendViaSendGrid(to, subject, html); console.log('Email sent via SendGrid to', to); return; }catch(e){ console.warn('SendGrid fail, fallback SMTP', (e as any)?.message); }
+  }
+  // 3. SMTP fallback (often blocked on Railway)
   const from = process.env.SMTP_USER || process.env.FROM_EMAIL || 'budgetbazaarservicebd@gmail.com';
   try{
     await transporter.sendMail({ from: `Budget Bazar Service <${from}>`, to, subject, html });
     console.log('Email sent via SMTP to', to, `port ${SMTP_PORT}`);
   }catch(e:any){
     console.error('SMTP send failed', e?.message, `port ${SMTP_PORT} host ${process.env.SMTP_HOST||'smtp.gmail.com'}`);
+    console.error('Railway blocks SMTP - use SendGrid HTTP: set SENDGRID_API_KEY and SENDGRID_FROM at Railway');
     throw e;
   }
 }
