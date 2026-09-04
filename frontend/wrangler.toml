@@ -1,0 +1,7 @@
+name = "budget-bazaar"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+not_found_handling = "single-page-application"
