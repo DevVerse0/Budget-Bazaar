@@ -5,7 +5,7 @@ import { adminMiddleware } from '../middleware/admin.middleware.js';
 import { validate } from '../middleware/validation.middleware.js';
 import { createOrderSchema, trackOrderSchema } from '../validators/order.validator.js';
 const r = Router();
-r.post('/', validate(createOrderSchema), createOrder);
+r.post('/', authMiddleware, validate(createOrderSchema), createOrder);
 r.post('/track', validate(trackOrderSchema), trackOrder);
 r.get('/', authMiddleware, adminMiddleware, listOrders);
 r.get('/:id', authMiddleware, getOrder);

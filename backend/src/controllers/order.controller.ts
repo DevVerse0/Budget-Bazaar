@@ -4,12 +4,12 @@ import { generateOrderNumber } from '../utils/orderNumber.js';
 
 export async function createOrder(req:Request,res:Response){
   const user = (req as any).user;
+  // Require login before order - fix guest checkout
+  if(!user) return res.status(401).json({ error:'Please login to place order. Login required.', code:'LOGIN_REQUIRED' });
   // Block shopping until OTP verified
-  if(user && !user.email_confirmed_at){
+  if(!user.email_confirmed_at){
     return res.status(403).json({ error:'Please verify your email with OTP before shopping. Check your email for verification code.', code:'EMAIL_NOT_VERIFIED', email:user.email });
   }
-  // Optional: require login for shopping (uncomment to block guest checkout)
-  // if(!user) return res.status(401).json({ error:'Please login and verify OTP before shopping', code:'LOGIN_REQUIRED' });
   const body = (req as any).validated || req.body;
   // Validate stock & price server-side
   let subtotal = 0;

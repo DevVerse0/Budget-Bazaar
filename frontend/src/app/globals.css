@@ -10,4 +10,10 @@ body{ @apply bg-white text-slate-900; }
 .card-hover:hover{ transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); border-color:#F5B800; }
 .btn-gold{ background: linear-gradient(90deg,#F5B800,#E6A800); transition: all 0.2s; }
 .btn-gold:hover{ transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,184,0,0.4); }
+.btn-gold:active{ transform: scale(0.98); }
+button:active{ transform: scale(0.98); }
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse-scale{0%,100%{opacity:1}50%{opacity:0.7;transform:scale(0.98)}}
+.btn-processing{ position:relative; pointer-events:none; opacity:0.8; }
+.btn-processing::after{ content:''; position:absolute; inset:0; background:rgba(255,255,255,0.15); border-radius:inherit; animation: pulse-scale 1s ease infinite; }
 .skeleton{ background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size:1000px 100%; animation: shimmer 2s infinite; }

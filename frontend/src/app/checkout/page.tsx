@@ -14,11 +14,17 @@ export default function Checkout(){
   const { register, handleSubmit, formState:{errors} } = useForm({ resolver: zodResolver(schema) });
   const { items, clear } = useCartStore(); const router = useRouter();
   const [coupon,setCoupon]=useState(''); const [discount,setDiscount]=useState(0); const [couponMsg,setCouponMsg]=useState(''); const [applying,setApplying]=useState(false);
-  const [verifyMsg,setVerifyMsg]=useState(''); const [verifyEmail,setVerifyEmail]=useState(''); const [checking,setChecking]=useState(true);
+  const [verifyMsg,setVerifyMsg]=useState(''); const [verifyEmail,setVerifyEmail]=useState(''); const [checking,setChecking]=useState(true); const [needLogin,setNeedLogin]=useState(false);
   useEffect(()=>{
     supabase.auth.getSession().then(async({data})=>{
       const user = data.session?.user;
-      if(user && !user.email_confirmed_at){
+      if(!user){
+        setNeedLogin(true);
+        setVerifyMsg('Please login to place order. You must be logged in to shop.');
+        setChecking(false);
+        return;
+      }
+      if(!user.email_confirmed_at){
         setVerifyMsg('Please verify your email with OTP before shopping. Code sent to '+user.email);
         setVerifyEmail(user.email||'');
         try{ await api.post('/otp/request', { email:user.email, type:'signup' }); }catch{}
@@ -39,16 +45,23 @@ export default function Checkout(){
     setApplying(false);
   };
   const removeCoupon = ()=>{ setCoupon(''); setDiscount(0); setCouponMsg(''); };
+  const [placing,setPlacing]=useState(false);
   const onSubmit = async (data:any)=>{
     if(items.length===0) return alert('Cart empty');
-    // block unverified
+    // block guest / unverified
     const { data: sess } = await supabase.auth.getSession();
     const u = sess.session?.user;
-    if(u && !u.email_confirmed_at){
+    if(!u){
+      alert('Please login to place order');
+      router.push(`/login?next=/checkout`);
+      return;
+    }
+    if(!u.email_confirmed_at){
       alert('Please verify your email with OTP before shopping. Check '+u.email);
       router.push(`/verify-otp?email=${encodeURIComponent(u.email||'')}`);
       return;
     }
+    setPlacing(true);
     const payload = { ...data, items: items.map(i=>({productId:i.productId, quantity:i.qty})), payment_method:'cod', couponCode: discount>0? coupon.trim() : undefined };
     try{ const res= await orderService.create(payload); clear(); router.push(`/order-success?order=${res.order.order_number}`);} catch(e:any){
       const msg = e.response?.data?.error || 'Order failed';
@@ -56,14 +69,22 @@ export default function Checkout(){
         alert(msg);
         const { data: s } = await supabase.auth.getSession();
         router.push(`/verify-otp?email=${encodeURIComponent(s.session?.user?.email||data.mobile||'')}`);
+        setPlacing(false);
+        return;
+      }
+      if(e.response?.data?.code==='LOGIN_REQUIRED'){
+        alert(msg);
+        router.push('/login');
+        setPlacing(false);
         return;
       }
       alert(msg);
+      setPlacing(false);
     }
   };
-  if(checking) return (<div className="container-bb py-12 text-center text-sm">Checking verification...</div>);
+  if(checking) return (<div className="container-bb py-12 text-center text-sm flex items-center justify-center gap-2"><span className="w-4 h-4 border-2 border-navy border-t-transparent rounded-full animate-spin"/> Checking verification...</div>);
   if(verifyMsg) return (<div className="container-bb py-12 text-center">
-    <div className="max-w-md mx-auto bg-amber-50 border border-amber-200 rounded-xl p-6"><p className="font-bold text-amber-900">Email Verification Required</p><p className="text-sm text-amber-800 mt-2">{verifyMsg}</p><Link href={`/verify-otp?email=${encodeURIComponent(verifyEmail)}`} className="inline-block mt-4 bg-gold px-6 py-2 rounded-xl font-bold">Go to Verify</Link></div>
+    <div className="max-w-md mx-auto bg-amber-50 border border-amber-200 rounded-xl p-6"><p className="font-bold text-amber-900">{needLogin?'Login Required':'Email Verification Required'}</p><p className="text-sm text-amber-800 mt-2">{verifyMsg}</p>{needLogin ? <Link href="/login" className="inline-block mt-4 bg-navy text-white px-6 py-2 rounded-xl font-bold">Go to Login</Link> : <Link href={`/verify-otp?email=${encodeURIComponent(verifyEmail)}`} className="inline-block mt-4 bg-gold px-6 py-2 rounded-xl font-bold">Go to Verify</Link>}</div>
   </div>);
   if(items.length===0) return (<div className="container-bb py-16 text-center"><p className="font-bold">Your cart is empty</p><Link href="/shop" className="inline-block mt-4 bg-gold px-6 py-2 rounded-xl font-bold">Shop Now</Link></div>);
   return (<div className="container-bb py-6 pb-32 md:pb-6 grid lg:grid-cols-[1.1fr_420px] gap-6">
@@ -86,7 +107,9 @@ export default function Checkout(){
         <input {...register('full_address')} placeholder="Full Address (House, Road, Area) *" className="w-full border rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none" />
         {errors.full_address && <p className="text-xs text-red-500 mt-1">{errors.full_address.message as string}</p>}
       </div>
-      <button type="submit" className="w-full bg-gold hover:bg-[#E6A800] py-3.5 rounded-xl font-black shadow">Place Order • ৳{total.toLocaleString()}</button>
+      <button type="submit" disabled={placing} className="w-full bg-gold hover:bg-[#E6A800] py-3.5 rounded-xl font-black shadow flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+        {placing ? <><span className="w-4 h-4 border-2 border-navy border-t-transparent rounded-full animate-spin"/> Processing... Placing Order ৳{total.toLocaleString()}</> : <>Place Order • ৳{total.toLocaleString()}</>}
+      </button>
       <p className="text-xs text-gray-500 text-center">By placing order you agree to our Terms</p>
     </form>
     <div className="space-y-4">
@@ -119,5 +142,13 @@ export default function Checkout(){
         </div>
       </div>
     </div>
+    {placing && <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl p-8 max-w-sm w-[90%] text-center shadow-2xl border">
+        <div className="w-14 h-14 border-4 border-gold border-t-navy rounded-full animate-spin mx-auto"/>
+        <p className="font-black text-lg mt-4">Processing your order...</p>
+        <p className="text-sm text-gray-500 mt-1">Creating BBS ID • Checking stock • Applying coupon</p>
+        <p className="text-xs text-gray-400 mt-2">Please do not close the window</p>
+      </div>
+    </div>}
   </div>);
 }
