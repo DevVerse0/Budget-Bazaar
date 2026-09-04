@@ -1,36 +1,46 @@
 import nodemailer from 'nodemailer';
-// Resend HTTP API (preferred on Railway - SMTP blocked)
+// Resend HTTP API (preferred on Railway - SMTP often blocked)
 const RESEND_KEY = process.env.RESEND_API_KEY || '';
+const RESEND_FROM = process.env.RESEND_FROM || process.env.FROM_EMAIL || 'Budget Bazar Service <onboarding@resend.dev>';
 async function sendViaResend(to:string, subject:string, html:string){
+  // If using onboarding@resend.dev, Resend only allows to own email — will 403 for others (needs verified domain)
+  const from = RESEND_FROM;
   const res = await fetch('https://api.resend.com/emails', {
     method:'POST',
     headers:{ 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type':'application/json' },
-    body: JSON.stringify({ from: 'Budget Bazar Service <onboarding@resend.dev>', to, subject, html })
+    body: JSON.stringify({ from, to, subject, html })
   });
-  if(!res.ok){ const t=await res.text(); throw new Error(`Resend ${res.status}: ${t}`); }
+  if(!res.ok){ const t=await res.text(); throw new Error(`Resend ${res.status}: ${t} (from: ${from})`); }
   return res.json();
 }
+// SMTP fallback - use 587 STARTTLS (465 often timeout on Railway), configurable via env
+const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: Number(process.env.SMTP_PORT || 465),
-  secure: true,
+  port: SMTP_PORT,
+  secure: SMTP_PORT===465, // 465 SSL, 587 STARTTLS
   auth: { user: process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com', pass: (process.env.SMTP_PASS || 'zhmf ptla fpmf ndty').replace(/\s/g,'') },
   tls: { rejectUnauthorized: false },
-  connectionTimeout: 5000,
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
 });
 export async function sendMail(to:string, subject:string, html:string){
   // try Resend first only if key exists (HTTP, works on Railway)
   if(RESEND_KEY){
-    try{ await sendViaResend(to, subject, html); console.log('Email sent via Resend to', to); return; }catch(e){ console.warn('Resend fail, fallback SMTP', (e as any)?.message); }
+    try{ await sendViaResend(to, subject, html); console.log('Email sent via Resend to', to, 'from', RESEND_FROM); return; }catch(e){
+      console.warn('Resend fail, fallback SMTP', (e as any)?.message);
+      // If Resend 403 due to onboarding domain, give clear hint
+      if(String((e as any)?.message).includes('403')) console.warn('Fix: Verify domain at resend.com/domains and set RESEND_FROM=noreply@yourdomain.com');
+    }
   } else {
     console.log('RESEND_API_KEY not set, using SMTP');
   }
-  const from = process.env.SMTP_USER || 'budgetbazaarservicebd@gmail.com';
+  const from = process.env.SMTP_USER || process.env.FROM_EMAIL || 'budgetbazaarservicebd@gmail.com';
   try{
     await transporter.sendMail({ from: `Budget Bazar Service <${from}>`, to, subject, html });
-    console.log('Email sent via SMTP to', to);
+    console.log('Email sent via SMTP to', to, `port ${SMTP_PORT}`);
   }catch(e:any){
-    console.error('SMTP send failed', e?.message);
+    console.error('SMTP send failed', e?.message, `port ${SMTP_PORT} host ${process.env.SMTP_HOST||'smtp.gmail.com'}`);
     throw e;
   }
 }
